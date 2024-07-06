@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Question } from 'src/schemas/Question.schema';
 import { CreateQuestionDto } from './dto/CreateQuestion.dto';
 import { UpdateQuestionDto } from './dto/UpdateQuestion.dto';
+import { GetQuestionsDto } from './dto/GetQuestions.dto';
 
 @Injectable()
 export class QuestionService {
@@ -16,7 +17,7 @@ export class QuestionService {
     return createdQuestion.save();
   }
 
-  getQuestions(): Promise<Question[]> {
+  getQuestions() {
     return this.questionModel.find().exec();
   }
 
@@ -30,5 +31,10 @@ export class QuestionService {
 
   deleteQuestion(id: string) {
     return this.questionModel.findByIdAndDelete(id);
+  }
+
+  async getQuestionsByCriteria(getQuestionsDto: GetQuestionsDto) {
+    const { amount, subject, level } = getQuestionsDto;
+    return this.questionModel.find({ subject, level }).limit(amount).exec();
   }
 }

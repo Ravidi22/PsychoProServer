@@ -7,11 +7,13 @@ import {
   HttpException,
   Patch,
   Delete,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/CreateUser.dto';
 import mongoose from 'mongoose';
 import { UpdateUserDto } from './dto/UpdateUser.dto';
+import { SignInDto } from './dto/SignIn.dto';
 
 @Controller('users')
 export class UsersController {
@@ -27,6 +29,15 @@ export class UsersController {
     return this.usersService.getUsers();
   }
 
+  @Post('signin')
+  async signIn(@Body() signInDto: SignInDto) {
+    const user = await this.usersService.validateUser(signInDto);
+    if (!user) {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    }
+    return user;
+  }
+
   @Get(':id')
   async getUserById(@Param('id') id: string) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
@@ -40,6 +51,7 @@ export class UsersController {
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const isValid = mongoose.Types.ObjectId.isValid(id);
     if (!isValid) throw new HttpException('Invalid ID', 400);
+    ``;
 
     const updateUser = this.usersService.updateUser(id, updateUserDto);
     if (!updateUser) throw new HttpException('User not found', 404);
